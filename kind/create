@@ -1,0 +1,24 @@
+#!/bin/bash
+
+
+function usage() {
+    local prog=$(basename $0)
+    echo "USAGE:"
+    echo -e "\t${prog} <config yaml>"
+    echo "EXAMPLE:"
+    echo -e "\t${prog} example.yaml"
+}
+
+[[ "$#" -ne 1 ]] &&
+    {
+        usage
+        exit 1
+    }
+
+[[ "$1" == "-h" ]] &&
+    {
+        usage
+        exit 0
+    }
+
+kind create cluster --config $1
