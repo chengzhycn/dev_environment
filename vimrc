@@ -16,8 +16,8 @@ set number
 set cursorcolumn
 set cursorline
 
-highlight CursorLine    cterm=NONE ctermbg=white ctermfg=NONE guibg=NONE guifg=NONE
-highlight CursorColumn  cterm=NONE ctermbg=white ctermfg=NONE guibg=NONE guifg=NONE
+"highlight CursorLine    cterm=NONE ctermbg=white ctermfg=NONE guibg=NONE guifg=NONE
+"highlight CursorColumn  cterm=NONE ctermbg=white ctermfg=NONE guibg=NONE guifg=NONE
 
 " search
 set ignorecase
@@ -25,8 +25,34 @@ set incsearch
 set hlsearch
 set smartcase
 
+" map leader key
+let mapleader = ","
+
+" TextEdit might fail if hidden is not set.
+set hidden
+
 " always show status line
 set laststatus=2
+
+" nobackup
+set nobackup
+set nowritebackup
+
+" noswapfile
+set noswapfile
+
+" Give more space for displaying messages.
+set cmdheight=2
+
+" Having longer updatetime (default is 4000 ms = 4 s) leads to noticeable
+" delays and poor user experience.
+set updatetime=300
+
+" jump to last edit/view position when opening a file
+if has("autocmd")                                                          
+  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif                                                        
+endif
+
 "================================================
 
 
@@ -76,6 +102,9 @@ Plug 'vim-scripts/taglist.vim'
 " ack vim
 Plug 'mileszs/ack.vim'
 
+" markdown preview
+Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+
 call plug#end()
 
 "================================================
@@ -97,12 +126,17 @@ map <leader>nn :NERDTreeToggle<cr>
 map <leader>nb :NERDTreeFromBookmark<Space>
 map <leader>nf :NERDTreeFind<cr>
 
+:autocmd FileType nerdtree set norelativenumber
+:autocmd FileType taglist set norelativenumber
+
 " gutentags
 " enable gtags module
 let g:gutentags_modules = ['ctags', 'gtags_cscope']
 
 " config project root markers.
 let g:gutentags_project_root = ['.root', '.git', '.idea', '.vscode']
+
+let g:gutentags_ctags_tagfile = '.tags'
 
 " generate datebases in my cache directory, prevent gtags files polluting my project
 let s:vim_tags = expand('~/.cache/tags')
@@ -115,14 +149,20 @@ endif
 nnoremap <silent> <F8> :TlistToggle<CR>
 let Tlist_Show_One_File = 1
 let Tlist_Exit_OnlyWindow = 1
-let Tlist_Use_Right_Window = 1
+"let Tlist_Use_Right_Window = 1
 
 " change focus to quickfix window after search (optional).
 let g:gutentags_plus_switch = 1
 
+let g:gutentags_ctags_extra_args = []
+let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extra=+q']
+let g:gutentags_ctags_extra_args += ['--c++-kinds=+px']
+let g:gutentags_ctags_extra_args += ['--c-kinds=+px']
+
 set statusline+=%{gutentags#statusline()}
-let g:gutentags_project_root = ['Makefile']
-let g:gutentags_cache_dir = '~/.vim/tags'
+
+" coc status line
+set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
 
 "================================================
 
@@ -147,25 +187,6 @@ let g:airline_powerline_fonts = 1
 
 "================= Key Mappings =================
 
-inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
-inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
-
-inoremap <silent><expr> <C-space> coc#refresh()
-
-"GoTo code navigation
-nmap <leader>g <C-o>
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gt <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
-
-nmap <leader>rn <Plug>(coc-rename)
-
-"show all diagnostics.
-nnoremap <silent> <space>d :<C-u>CocList diagnostics<cr>
-"manage extensions.
-nnoremap <silent> <space>e :<C-u>CocList extensions<cr>
-
 " window spliting/movement
 function! WinMove(key)
     let t:curwin = winnr()
@@ -184,6 +205,44 @@ nnoremap <silent> <C-h> :call WinMove('h')<CR>
 nnoremap <silent> <C-j> :call WinMove('j')<CR>
 nnoremap <silent> <C-k> :call WinMove('k')<CR>
 nnoremap <silent> <C-l> :call WinMove('l')<CR>
+
+" Mappings for coc
+inoremap <expr> <Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <expr> <S-Tab> pumvisible() ? "\<C-p>" : "\<S-Tab>"
+
+inoremap <silent><expr> <C-space> coc#refresh()
+
+"GoTo code navigation
+nmap <leader>g <C-o>
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gt <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+nmap <leader>rn <Plug>(coc-rename)
+
+" Mappings for CoCList
+" Show all diagnostics.
+nnoremap <silent><nowait> <space>a  :<C-u>CocList diagnostics<cr>
+" Manage extensions.
+nnoremap <silent><nowait> <space>e  :<C-u>CocList extensions<cr>
+" Show commands.
+nnoremap <silent><nowait> <space>c  :<C-u>CocList commands<cr>
+" Find symbol of current document.
+nnoremap <silent><nowait> <space>o  :<C-u>CocList outline<cr>
+" Search workspace symbols.
+nnoremap <silent><nowait> <space>s  :<C-u>CocList -I symbols<cr>
+" Do default action for next item.
+nnoremap <silent><nowait> <space>j  :<C-u>CocNext<CR>
+" Do default action for previous item.
+nnoremap <silent><nowait> <space>k  :<C-u>CocPrev<CR>
+" Resume latest coc list.
+nnoremap <silent><nowait> <space>p  :<C-u>CocListResume<CR>
+" Show files
+nnoremap <silent><nowait> <space>f  :<C-u>CocList files<cr>
+" Show most recent used files
+nnoremap <silent><nowait> <space>m  :<C-u>CocList mru<cr>
+
 
 "================================================
 
