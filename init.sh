@@ -14,42 +14,6 @@ DEFAULT_PATH=/usr/local/bin
 
 ########## END ENVIRONMENTS ##########
 
-# Homebrew-bottles
-# for bash
-echo 'export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles' >> ~/.bash_profile
-source ~/.bash_profile
-# for zsh
-echo 'export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles' >> ~/.zshrc
-source ~/.zshrc
-# for fish
-echo 'export HOMEBREW_BOTTLE_DOMAIN=https://mirrors.ustc.edu.cn/homebrew-bottles' >> ~/.config/fish/config.fish
-source ~/.config/fish/config.fish
-
-# for nerd fonts
-brew tap homebrew/cask-fonts
-
-brew cask install font-ubuntu-mono-nerd-font
-
-# install some useful tools
-brew install zsh lua go lrzsz jq bat fish starship llvm
-
-    git clone https://github.com/skywind3000/z.lua.git
-
-# for fish
-
-
-# for local kubernetes
-function install_k8s() {
-    if [[ "${DEFAULT_OS}" == "mac" ]]; then
-        brew install kind kubectl octant
-    else
-        # install kind
-        curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.8.1/kind-linux-amd64
-        chmod +x ./kind
-        mv ./kind /"${DEFAULT_PATH}"/kind
-    fi
-}
-
 
 ########## BEG SHELL ##########
 # init zsh use oh-my-zsh
@@ -117,8 +81,59 @@ function change_brew_src {
 
 ########## BEG BASIC TOOLS ##########
 function install_basic_tools() {
+    if [[ "${DEFAULT_OS}" == "mac" ]]; then
+        # install some useful tools
+        brew install zsh lua go lrzsz jq bat fish starship llvm
+
+        # for nerd fonts
+        brew tap homebrew/cask-fonts
+
+        brew cask install font-ubuntu-mono-nerd-font
+    fi
     
 }
+
+function install_enhanced_tools() {
+    # z.lua
+    git clone https://github.com/skywind3000/z.lua.git -C ~/.z.lua > /dev/null 2>&1 ||
+        {
+            echo "cloning z.lua failed"
+            return 1
+        }
+
+    case "${DEFAULT_SHELL}" in
+    "bash")
+        echo 'eval "$(lua ~/.z.lua --init bash enhanced once fzf)"' >> ~/.bashrc
+        ;;
+    "zsh")
+        echo 'eval "$(lua /path/to/z.lua --init zsh)"' >> ~/.zshrc
+        ;;
+    "fish")
+        mkdir -p ~/.config/fish/conf.d
+        echo 'source (lua /path/to/z.lua --init fish | psub)' >> ~/.config/fish/conf.d/z.fish
+        ;;
+    *)
+        echo "error: unsupport shell!!!"
+        return 1
+        ;;
+    esac
+
+}
+
+
+# for local kubernetes
+function install_k8s() {
+    if [[ "${DEFAULT_OS}" == "mac" ]]; then
+        brew install kind kubectl octant
+    else
+        # install kind
+        curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.8.1/kind-linux-amd64
+        chmod +x ./kind
+        mv ./kind /"${DEFAULT_PATH}"/kind
+    fi
+}
+
+
 
 ########## END BASIC TOOLS ##########
 
