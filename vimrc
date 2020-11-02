@@ -25,7 +25,10 @@ endfunction
 "================= Basic Config =================
 
 " mouse scrolling support
-set mouse=a
+" set mouse=a
+
+" disable visual mode when using mouse
+set mouse-=a
 
 " layout/format
 set expandtab
@@ -103,6 +106,7 @@ Plug 'vim-airline/vim-airline-themes'
 
 " colorscheme
 Plug 'ayu-theme/ayu-vim' 
+Plug 'morhetz/gruvbox'
 
 Plug 'neoclide/coc.nvim', { 'branch': 'release' }
 
@@ -114,6 +118,7 @@ Plug 'machakann/vim-sandwich'
 
 " git
 Plug 'airblade/vim-gitgutter'
+Plug 'tpope/vim-fugitive'
 
 " nerdtree
 Plug 'preservim/nerdtree'
@@ -129,6 +134,9 @@ Plug 'mileszs/ack.vim'
 " markdown preview
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
 
+" golang
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
+
 call plug#end()
 
 "================================================
@@ -141,6 +149,8 @@ let g:airline#extensions#tabline#formatter = 'unique_tail_improved'
 let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
 let g:airline#extensions#tabline#enabled = 1
+let g:airline#extensions#tabline#buffer_nr_show = 1
+let g:airline#extensions#coc#enabled = 1
 
 " nerdtree
 let NERDTreeShowHidden=0
@@ -154,11 +164,12 @@ map <leader>nf :NERDTreeFind<cr>
 :autocmd FileType taglist set norelativenumber
 
 " gutentags
+"let g:gutentags_trace = 1
 " enable gtags module
 let g:gutentags_modules = ['ctags', 'gtags_cscope']
 
 " config project root markers.
-let g:gutentags_project_root = ['.root', '.git', '.idea', '.vscode']
+let g:gutentags_project_root = ['.git']
 
 let g:gutentags_ctags_tagfile = '.tags'
 
@@ -179,7 +190,7 @@ let Tlist_Exit_OnlyWindow = 1
 let g:gutentags_plus_switch = 1
 
 let g:gutentags_ctags_extra_args = []
-let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extra=+q']
+let g:gutentags_ctags_extra_args = ['--fields=+niazS', '--extras=+q']
 let g:gutentags_ctags_extra_args += ['--c++-kinds=+px']
 let g:gutentags_ctags_extra_args += ['--c-kinds=+px']
 
@@ -225,7 +236,7 @@ autocmd BufReadPost quickfix nnoremap <buffer> <CR> <CR>
 
 "================= Color Themes =================
 
-colorscheme ayu
+colorscheme gruvbox
 
 " ayu colorscheme config
 set termguicolors     " enable true colors support
@@ -234,7 +245,7 @@ let ayucolor="mirage" " for mirage version of theme
 let ayucolor="dark"   " for dark version of theme
 
 " airline colorscheme config
-let g:airline_theme='solarized'
+let g:airline_theme='gruvbox'
 let g:airline_solarized_bg='dark'
 let g:airline_powerline_fonts = 1
 
