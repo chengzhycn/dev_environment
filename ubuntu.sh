@@ -5,7 +5,7 @@ CARGO=$(command -v cargo 2>/dev/null)
 CARGO_TOOLS=(starship fd-find exa bat)
 
 function tools() {
-    sudo apt install zsh shellcheck lua5.3 jq git make curl -y
+    sudo apt install zsh shellcheck lua5.3 jq git make curl tig -y
     return $?
 }
 
