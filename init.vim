@@ -1,7 +1,7 @@
 "=============== Basic Functions ================
 function! CmdLine(str)
     call feedkeys(":" . a:str)
-endfunction 
+endfunction
 
 function! VisualSelection(direction, extra_filter) range
     let l:saved_reg = @"
@@ -26,6 +26,10 @@ endfunction
 
 " mouse scrolling support
 " set mouse=a
+
+" Maintain undo history between sessions
+set undofile
+set undodir=~/.config/nvim/undodir
 
 " layout/format
 set expandtab
@@ -73,8 +77,8 @@ set cmdheight=2
 set updatetime=300
 
 " jump to last edit/view position when opening a file
-if has("autocmd")                                                          
-  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif                                                        
+if has("autocmd")
+  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 endif
 
 "================================================
@@ -102,7 +106,7 @@ Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 
 " colorscheme
-Plug 'ayu-theme/ayu-vim' 
+Plug 'ayu-theme/ayu-vim'
 Plug 'morhetz/gruvbox'
 
 Plug 'neoclide/coc.nvim', { 'branch': 'release' }
@@ -115,6 +119,7 @@ Plug 'machakann/vim-sandwich'
 
 " git
 Plug 'airblade/vim-gitgutter'
+Plug 'tpope/vim-fugitive'
 
 " nerdtree
 Plug 'preservim/nerdtree'
@@ -123,13 +128,17 @@ Plug 'preservim/nerdtree'
 Plug 'ludovicchabant/vim-gutentags'
 Plug 'skywind3000/gutentags_plus'
 Plug 'vim-scripts/taglist.vim'
-Plug 'vim-scripts/Tagbar'
+Plug 'jstemmer/gotags'
+Plug 'preservim/tagbar'
 
 " ack vim
 Plug 'mileszs/ack.vim'
 
 " markdown preview
 Plug 'iamcco/markdown-preview.nvim', { 'do': { -> mkdp#util#install() }, 'for': ['markdown', 'vim-plug']}
+
+" golang
+Plug 'fatih/vim-go', { 'do': ':GoUpdateBinaries' }
 
 call plug#end()
 
@@ -144,7 +153,6 @@ let g:airline#extensions#tabline#left_sep = ' '
 let g:airline#extensions#tabline#left_alt_sep = '|'
 let g:airline#extensions#tabline#enabled = 1
 let g:airline#extensions#tabline#buffer_nr_show = 1
-let g:airline#extensions#coc#enabled = 1
 
 " nerdtree
 let NERDTreeShowHidden=0
@@ -157,36 +165,8 @@ map <leader>nf :NERDTreeFind<cr>
 :autocmd FileType nerdtree set norelativenumber
 :autocmd FileType taglist set norelativenumber
 
-" tagbar
-let g:tagbar_type_go = {
-  \ 'ctagstype' : 'go',
-  \ 'kinds'     : [
-    \ 'p:package',
-    \ 'i:imports:1',
-    \ 'c:constants',
-    \ 'v:variables',
-    \ 't:types',
-    \ 'n:interfaces',
-    \ 'w:fields',
-    \ 'e:embedded',
-    \ 'm:methods',
-    \ 'r:constructor',
-    \ 'f:functions'
-  \ ],
-  \ 'sro' : '.',
-  \ 'kind2scope' : {
-    \ 't' : 'ctype',
-    \ 'n' : 'ntype'
-  \ },
-      \ 'scope2kind' : {
-    \ 'ctype' : 't',
-    \ 'ntype' : 'n'
-  \ },
-  \ 'ctagsbin'  : 'gotags',
-  \ 'ctagsargs' : '-sort -silent'
-\ }
-
 " gutentags
+" let g:gutentags_trace = 1
 " enable gtags module
 let g:gutentags_modules = ['ctags', 'gtags_cscope']
 
@@ -202,8 +182,42 @@ if !isdirectory(s:vim_tags)
    silent! call mkdir(s:vim_tags, 'p')
 endif
 
+"autocmd VimEnter * nested :TagbarOpen
+
+let g:tagbar_type_go = {
+    \ 'ctagstype' : 'go',
+    \ 'kinds'     : [
+        \ 'p:package',
+        \ 'i:imports:1',
+        \ 'c:constants',
+        \ 'v:variables',
+        \ 't:types',
+        \ 'n:interfaces',
+        \ 'w:fields',
+        \ 'e:embedded',
+        \ 'm:methods',
+        \ 'r:constructor',
+        \ 'f:functions'
+    \ ],
+    \ 'sro' : '.',
+    \ 'kind2scope' : {
+        \ 't' : 'ctype',
+        \ 'n' : 'ntype'
+    \ },
+    \ 'scope2kind' : {
+        \ 'ctype' : 't',
+        \ 'ntype' : 'n'
+    \ },
+    \ 'ctagsbin'  : 'gotags',
+    \ 'ctagsargs' : '-sort -silent'
+\ }
+nnoremap <silent> <F8> :TagbarToggle<CR>
+let tagbar_left=1
+let tagbar_width=40
+let g:tagbar_compact=1
+
 """ taglist
-nnoremap <silent> <F8> :TlistToggle<CR>
+nnoremap <silent> <F9> :TlistToggle<CR>
 let Tlist_Show_One_File = 1
 let Tlist_Exit_OnlyWindow = 1
 "let Tlist_Use_Right_Window = 1
@@ -220,17 +234,6 @@ set statusline+=%{gutentags#statusline()}
 
 " coc status line
 set statusline^=%{coc#status()}%{get(b:,'coc_current_function','')}
-let g:coc_global_extensions = [
-  \ 'coc-json', 
-  \ 'coc-git', 
-  \ 'coc-go',
-  \ 'coc-yaml',
-  \ 'coc-sh',
-  \ 'coc-python',
-  \ 'coc-lists',
-  \ 'coc-highlight',
-  \ 'coc-clangd',
-\ ]
 
 " Use the the_silver_searcher if possible (much faster than Ack)
 if executable('ag')
@@ -345,4 +348,3 @@ nnoremap <silent><nowait> <space>m  :<C-u>CocList mru<cr>
 
 
 "================================================
-

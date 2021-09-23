@@ -5,7 +5,7 @@ CARGO=$(command -v cargo 2>/dev/null)
 CARGO_TOOLS=(starship fd-find exa bat)
 
 function tools() {
-    sudo apt install zsh shellcheck lua5.3 jq git make curl tig -y
+    sudo apt install zsh shellcheck lua5.3 jq git make curl tig silversearcher-ag -y
     return $?
 }
 
@@ -101,8 +101,33 @@ function zsh() {
     # source "${HOME}"/.zshrc
 }
 
-apt_source
+function bashrc() {
+    cat >> $HOME/.bashrc << EOF
+
+export GOPATH=$HOME/.go
+export GOMODCACHE=$GOPATH/pkg/mod
+export GOPROXY=https://goproxy.io,direct
+
+export RUSTUP_DIST_SERVER=https://mirrors.ustc.edu.cn/rust-static
+export RUSTUP_UPDATE_ROOT=https://mirrors.ustc.edu.cn/rust-static/rustup
+
+export PATH=$PATH:/usr/local/go/bin:$GOPATH/bin
+
+eval "$(starship init bash)"
+
+. "$HOME/.cargo/env"
+EOF
+
+    cat >> $HOME/.bash_profile << EOF
+if [ -f $HOME/.bashrc ]; then
+    source $HOME/.bashrc
+fi
+EOF
+}
+
+#apt_source
 tools || exit 1
-rust || exit 1
-rust_tools || exit 1
-zsh || exit 1
+# rust || exit 1
+# rust_tools || exit 1
+# zsh || exit 1
+bashrc || exit 1
