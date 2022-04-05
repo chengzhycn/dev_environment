@@ -1,0 +1,1 @@
+3 14 * * * /home/ubuntu/workspace/dev_environment/cron/hosts_sync.py
