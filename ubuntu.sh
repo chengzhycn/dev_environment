@@ -42,7 +42,13 @@ function rust() {
     cat > "${CARGO_CONFIG_DIR}"/config.toml << EOF
 [source.crates-io]
 registry = "https://github.com/rust-lang/crates.io-index"
-replace-with = 'tuna'
+replace-with = 'aliyun'
+
+[source.aliyun]
+registry = "sparse+https://mirrors.aliyun.com/crates.io-index/"
+
+[source.sjtu]
+registry = "https://mirrors.sjtug.sjtu.edu.cn/git/crates.io-index/"
 
 [source.ustc]
 # registry = "https://mirrors.ustc.edu.cn/crates.io-index"
