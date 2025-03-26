@@ -95,7 +95,7 @@ function install_basic_tools() {
 
 function install_enhanced_tools() {
     # z.lua
-    git clone https://github.com/skywind3000/z.lua.git -C ~/.z.lua > /dev/null 2>&1 ||
+    git clone --depth=1 https://github.com/skywind3000/z.lua.git ~/.z.lua > /dev/null 2>&1 ||
         {
             echo "cloning z.lua failed"
             return 1
@@ -103,14 +103,14 @@ function install_enhanced_tools() {
 
     case "${DEFAULT_SHELL}" in
     "bash")
-        echo 'eval "$(lua ~/.z.lua --init bash enhanced once fzf)"' >> ~/.bashrc
+        echo 'eval "$(lua ~/.z.lua/z.lua --init bash enhanced once fzf)"' >> ~/.bashrc
         ;;
     "zsh")
-        echo 'eval "$(lua /path/to/z.lua --init zsh)"' >> ~/.zshrc
+        echo 'eval "$(lua ~/.z.lua/z.lua --init zsh enhanced once fzf)"' >> ~/.zprofile
         ;;
     "fish")
         mkdir -p ~/.config/fish/conf.d
-        echo 'source (lua /path/to/z.lua --init fish | psub)' >> ~/.config/fish/conf.d/z.fish
+        echo 'source (lua ~/.z.lua/z.lua --init fish | psub)' >> ~/.config/fish/conf.d/z.fish
         ;;
     *)
         echo "error: unsupport shell!!!"
