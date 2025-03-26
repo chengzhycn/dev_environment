@@ -39,10 +39,10 @@ function rust() {
         mkdir "${CARGO_CONFIG_DIR}"
     fi
 
-    cat > "${CARGO_CONFIG_DIR}"/config << EOF
+    cat > "${CARGO_CONFIG_DIR}"/config.toml << EOF
 [source.crates-io]
 registry = "https://github.com/rust-lang/crates.io-index"
-replace-with = 'ustc'
+replace-with = 'tuna'
 
 [source.ustc]
 # registry = "https://mirrors.ustc.edu.cn/crates.io-index"
